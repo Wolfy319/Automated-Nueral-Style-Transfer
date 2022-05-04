@@ -123,7 +123,8 @@ if style_files != "" :
 else :
 	style_files = glob.glob(style_path + "*.jpg")
 
-content_path = "Content/" + input("Enter content folder - ") + "/"
+folder = input("Enter content folder - ")
+content_path = "Content/" + folder + "/"
 content_files = input("Enter style files - ")
 file_names = []
 if content_files != "" :
@@ -134,9 +135,13 @@ if content_files != "" :
 		content_files[i] = file_pathname
 else :
 	content_files = glob.glob(content_path + "*.jpg")
-	for i in enumerate(content_files) :
-		name = content_files[i].split(content_path)
-		file_names.append(name[1])
+	for i, file in enumerate(content_files) :
+		name = file.split(folder)
+		print(name)
+		name = name[1]
+		name = name.replace("\\", "")
+		print(name)
+		file_names.append(name)
 
 
 num_styles = len(style_files)
