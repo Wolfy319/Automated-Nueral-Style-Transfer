@@ -3,6 +3,7 @@
 # All rights reserved
 ###
 
+import enum
 import glob
 import shutil
 import NST
@@ -124,13 +125,19 @@ else :
 
 content_path = "Content/" + input("Enter content folder - ") + "/"
 content_files = input("Enter style files - ")
+file_names = []
 if content_files != "" :
 	content_files = content_files.split(" ")
 	for i, file in enumerate(content_files) :
-		file_name = content_path + content_files[i] + ".jpg"
-		content_files[i] = file_name
+		file_names.append(content_files[i])
+		file_pathname = content_path + content_files[i] + ".jpg"
+		content_files[i] = file_pathname
 else :
 	content_files = glob.glob(content_path + "*.jpg")
+	for i in enumerate(content_files) :
+		name = content_files[i].split(content_path)
+		file_names.append(name[1])
+
 
 num_styles = len(style_files)
 num_content = len(content_files)
@@ -142,6 +149,6 @@ duration =  prefs.duration
 NST.imgWidth = prefs.width
 NST.imgHeight
 print("Transferring styles... ")
-files = NST.run_styles(temp_folder, style_files, content_files)
+files = NST.run_styles(temp_folder, style_files, content_files, file_names)
 files = rename_files(temp_folder, fr, files, True)
 upscale_imgs(files)

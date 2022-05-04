@@ -154,7 +154,7 @@ def get_model_and_losses(vgg, content_image, style_image, content_layers, style_
 	return model, content_losses, style_losses
 
 
-def run_nst(content_image, style_image, input_image, iter, content_num, pathname, interp):
+def run_nst(content_image, style_image, input_image, iter, content_num, pathname, interp, filename):
 	# initialize model
 	nst, content_losses, style_losses = get_model_and_losses(
 		vgg_model, content_image, style_image, vgg_default_content_layers, vgg_default_style_layers)
@@ -191,7 +191,8 @@ def run_nst(content_image, style_image, input_image, iter, content_num, pathname
 		if step + 1 == steps :
 			if interp == False:
 				current_image = imfit(input_image.to(device).clone())
-				name = pathname + "/Style{}{}-0.jpg".format(content_num, iter + 1)
+				filename = filename.replace(".jpg", "")
+				name = pathname + "/" + filename + "{}-0.jpg".format(iter + 1)
 				current_image = current_image.save(name)
 				files.append(name)
 
@@ -203,7 +204,7 @@ def run_nst(content_image, style_image, input_image, iter, content_num, pathname
 
 
 
-def run_styles(temp_folder, styles, content) :
+def run_styles(temp_folder, styles, content, names) :
 	out_files = []
 	for i in range(len(content)) :
 		img_for_dim = Image.open(content[i])
@@ -217,7 +218,7 @@ def run_styles(temp_folder, styles, content) :
 			style_image = imageLoader(file)
 			content_image = imageLoader(content[i])
 			input_image = content_image.clone().to(device)
-			out = run_nst(content_image, style_image, input_image, j, i, temp_folder, False)
+			out = run_nst(content_image, style_image, input_image, j, i, temp_folder, False, names[i])
 			out_files.extend(out)
 	return out_files
 
