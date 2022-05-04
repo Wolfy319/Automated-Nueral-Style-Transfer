@@ -28,10 +28,10 @@ vggNormalizationMean = torch.tensor(
 vggNormalizationStd = torch.tensor(
 	[0.229, 0.224, 0.225]).to(device).view(-1, 1, 1)
 
-vgg_default_content_layers = ['relu4_2']
+vgg_default_content_layers = ['relu5_2']
 vgg_default_style_layers = [
 	'relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1']
-style_layer_weights = {'relu1_1' : 1, 'relu2_1' : 1, 'relu3_1' : 1, 'relu4_1' : 1, 'relu5_1' : 1}
+style_layer_weights = {'relu1_1' : 1, 'relu2_1' : .5, 'relu3_1' : .5, 'relu4_1' : .5, 'relu5_1' : .2}
 
 lr = config.lr
 steps = config.steps
