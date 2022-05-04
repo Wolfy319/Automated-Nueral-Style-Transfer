@@ -88,9 +88,10 @@ class Normalizer(nn.Module):
 
 
 class StyleLoss(nn.Module):
-	def __init__(self, target):
+	def __init__(self, target, layer):
 		super().__init__()
 		self.target = target.detach()
+		self.weight = style_layer_weights[layer]
 		self.loss = None
 
 	def gram(self, input):
@@ -144,7 +145,7 @@ def get_model_and_losses(vgg, content_image, style_image, content_layers, style_
 			content_losses.append(content_loss)
 			c_layers_copy.remove(name)
 		elif name in s_layers_copy:
-			style_loss = StyleLoss(model(style_image))
+			style_loss = StyleLoss(model(style_image), name)
 			model.add_module("styleloss{}".format(i), style_loss)
 			style_losses.append(style_loss)
 			s_layers_copy.remove(name)
@@ -171,7 +172,7 @@ def run_nst(content_image, style_image, input_image, iter, content_num, pathname
 		for item in content_losses:
 			content_loss += content_weight * item.loss
 		for item in style_losses:
-			style_loss += style_weight * item.loss
+			style_loss += style_weight * item.loss * item.weight
 		total_loss = style_loss + content_loss
 		optimizer.zero_grad()
 		total_loss.backward()
