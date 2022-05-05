@@ -4,6 +4,7 @@
 ###
 
 import os
+from random import randint
 from torchvision.transforms.functional import normalize
 import torch
 import torchvision.models as models
@@ -28,7 +29,7 @@ vggNormalizationMean = torch.tensor(
 vggNormalizationStd = torch.tensor(
 	[0.229, 0.224, 0.225]).to(device).view(-1, 1, 1)
 
-vgg_default_content_layers = ['relu5_2']
+vgg_default_content_layers = ['relu4_2']
 vgg_default_style_layers = [
 	'relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1']
 style_layer_weights = {'relu1_1' : 1, 'relu2_1' : .5, 'relu3_1' : .5, 'relu4_1' : .5, 'relu5_1' : .2}
@@ -72,9 +73,11 @@ def create_results_folder(pathname) :
 	return results_folder
 
 def create_noise_img(width, height) :
-	noise = 255*torch.rand(1,3,height, width).to(device)
-	noise = noise.int()
-	noise = noise.float()
+	noise = 255*torch.rand(3,height, width).to(device)
+	noise = noise * 0.01
+	noise = unloader(noise)
+	num = randint(0, 5000)
+	noise = noise.save(os.getcwd() + "/Content/noise/" + str(num) + ".jpg")
 	return noise
 
 class Normalizer(nn.Module):
@@ -205,19 +208,25 @@ def run_nst(content_image, style_image, input_image, iter, content_num, pathname
 
 
 
-def run_styles(temp_folder, styles, content, names) :
+def run_styles(temp_folder, styles, content, names, map = False) :
 	out_files = []
+	if map :
+		global content_weight
+		content_weight = 0
 	for i in range(len(content)) :
 		img_for_dim = Image.open(content[i])
 		ratio = img_for_dim.width / img_for_dim.height
 		global imgWidth 
 		imgWidth = 1000
 		global imgHeight 
-		imgHeight = int(imgWidth / ratio // 1)
+		if map : 
+			imgHeight = imgWidth
+		else :
+			imgHeight = int(imgWidth / ratio // 1)
 		for j in range(len(styles)) :
 			file = styles[j]
 			style_image = imageLoader(file)
-			content_image = imageLoader(content[i])
+			content_image = imageLoader(content[i])	
 			input_image = content_image.clone().to(device)
 			out = run_nst(content_image, style_image, input_image, j, i, temp_folder, False, names[i])
 			out_files.extend(out)
@@ -230,9 +239,11 @@ def run_maps(temp_folder, files, width, height) :
 	for i in range(len(files)) :
 		file = files[i]
 		style_image = imageLoader(file)
-		content_image = imageLoader(file)
-		input_image = torch.randn((1,3,imgHeight,imgWidth))
-		out = run_nst(content_image, style_image, input_image, i, temp_folder, False)
+		content_image = torch.randn((1,3,imgHeight,imgWidth)).to(device)
+		print(content_image.data.size())
+		input_image = content_image.clone().to(device)
+		print(input_image.data.size())
+		out = run_nst(content_image, style_image, input_image, i, 1, temp_folder, False, "map")
 		out_files.extend(out)
 	return out_files
 
