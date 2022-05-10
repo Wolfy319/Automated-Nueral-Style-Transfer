@@ -154,6 +154,6 @@ duration =  prefs.duration
 NST.imgWidth = prefs.width
 NST.imgHeight
 print("Transferring styles... ")
-files = NST.run_styles(temp_folder, style_files, content_files, file_names, True)
+files = NST.run_styles(temp_folder, style_files, content_files, file_names)
 files = rename_files(temp_folder, fr, files, True)
 upscale_imgs(files)
